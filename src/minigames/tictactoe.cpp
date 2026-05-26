@@ -1,11 +1,12 @@
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h>
 using namespace std;
 
 string game[3][3] = {
-	{ "", "", "", },
-	{ "", "", "", },
-	{ "", "", "", },
+	{ "", "", "" },
+	{ "", "", "" },
+	{ "", "", "" },
 };
 
 string board[5][5] = {
@@ -65,27 +66,36 @@ bool checkWin(string game[3][3]) {
 	return false;
 }
 
+void cpuMove(string game[3][3]) {
+	int row, col;
+	do {
+		row = rand() % 3;
+		col = rand() % 3;
+	} while (!checkCells(game, row, col));
+	game[row][col] = "O";
+}
+
 int main() {
-	while (true) { 
+	srand(time(0));
+	while (true) {
+		cout << "Your turn!\n";
 		printBoard(game, board);
+		int row, col;
 		// Input row
-		int row;
 		cout << "Choose a row between 1 and 3.\n";
 		do {
-			cout <<  ": ";
+			cout << ": ";
 			while (!(cin >> row)) {
 				cout << ": ";
 				cin.clear();
 				cin.ignore(10000, '\n');
 			}
-		}
-		while (row < 1 || row > 3);
+		} while (row < 1 || row > 3);
 		row -= 1;
 		// Input column
-		int col;
 		cout << "Choose a column between 1 and 3.\n";
 		do {
-			cout <<  ": ";
+			cout << ": ";
 			while (!(cin >> col)) {
 				cout << ": ";
 				cin.clear();
@@ -94,17 +104,28 @@ int main() {
 		}
 		while (col < 1 || col > 3);
 		col -= 1;
-		// Clear screen
-		system("cls");
-
+		// Update board
+		cout << endl;
 		if (checkCells(game, row, col)) {
+			// Your turn
 			game[row][col] = "X";
-			if (checkWin(game)) { break; }
+			if (checkWin(game)) {
+				cout << "You win!\n";
+				break; 
+			}
+			cout << "Computer is thinking...\n";
+			printBoard(game, board);
+			sleep((rand() % 3) + 1);
+			// CPU's turn
+			cpuMove(game);
+			if (checkWin(game)) { 
+				cout << "You lose...\n";
+				break;
+			}
 		} else {
 			cout << "Cell taken.\n";
 		}
 	}
 	printBoard(game, board);
-	cout << "Game over.";
 	return 0;
 }
